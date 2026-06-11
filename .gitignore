@@ -1,0 +1,14 @@
+.DS_Store
+node_modules/
+
+services/api/.venv/
+services/api/build/
+services/api/dist/
+services/api/runs/
+services/runs/
+services/api/src/*.egg-info/
+services/api/src/*/*.egg-info/
+__pycache__/
+*.py[cod]
+
+.netlify/

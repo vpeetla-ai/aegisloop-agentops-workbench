@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: aegisloop-api
+    runtime: docker
+    plan: starter
+    region: oregon
+    rootDir: services/api
+    healthCheckPath: /health
+    envVars:
+      - key: ALLOWED_ORIGINS
+        value: https://venkat-ai.com,https://www.venkat-ai.com
+      - key: DATABASE_URL
+        sync: false

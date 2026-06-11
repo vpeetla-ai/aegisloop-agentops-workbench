@@ -1,0 +1,19 @@
+[build]
+  publish = "app"
+  command = "npm run build"
+
+[functions]
+  directory = "infra/netlify/functions"
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/missions/run"
+  to = "/.netlify/functions/mission-run"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"

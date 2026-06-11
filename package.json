@@ -1,0 +1,20 @@
+{
+  "name": "aegisloop-agentops-workbench",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev --config infra/netlify/netlify.toml",
+    "api": "cd services/api && uv run agent-loop-api",
+    "build": "node infra/scripts/build-static.mjs",
+    "deploy:preview": "netlify deploy --config infra/netlify/netlify.toml",
+    "deploy:prod": "netlify deploy --prod --config infra/netlify/netlify.toml"
+  },
+  "dependencies": {
+    "@netlify/functions": "^3.0.4",
+    "openai": "^4.104.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.38.1"
+  }
+}

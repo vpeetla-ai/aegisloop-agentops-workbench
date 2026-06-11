@@ -1,0 +1,26 @@
+[project]
+name = "agent-loop-runtime"
+version = "0.1.0"
+description = "Production-grade agent loop runtime for the portfolio architecture demo"
+requires-python = ">=3.11"
+dependencies = [
+  "asyncpg>=0.30.0",
+  "fastapi>=0.115.0",
+  "httpx>=0.27.0",
+  "pydantic>=2.8.0",
+  "python-dotenv>=1.0.1",
+  "uvicorn[standard]>=0.30.0",
+]
+
+[project.scripts]
+agent-loop-api = "agent_loop.main:serve"
+
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv]
+package = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
