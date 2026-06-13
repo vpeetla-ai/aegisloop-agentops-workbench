@@ -4,8 +4,10 @@ services:
     runtime: docker
     plan: free
     region: oregon
-    rootDir: services/api
+    dockerfilePath: ./services/api/Dockerfile
+    dockerContext: ./services/api
     healthCheckPath: /health
+    autoDeployTrigger: commit
     envVars:
       - key: ALLOWED_ORIGINS
         value: https://venkat-ai.com,https://www.venkat-ai.com
