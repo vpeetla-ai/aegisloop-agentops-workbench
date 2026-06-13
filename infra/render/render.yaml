@@ -2,7 +2,7 @@ services:
   - type: web
     name: aegisloop-api
     runtime: docker
-    plan: starter
+    plan: free
     region: oregon
     rootDir: services/api
     healthCheckPath: /health
