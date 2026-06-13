@@ -18,6 +18,7 @@ RUN_LOG = RUN_DIR / "runs.jsonl"
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 _pool: Any = None
+_pool_error: str | None = None
 
 
 def _json_default(value: Any) -> Any:
@@ -35,30 +36,36 @@ def _loads_json(value: Any, fallback: Any) -> Any:
 
 
 async def _get_pool() -> Any:
-    global _pool
+    global _pool, _pool_error
     if not DATABASE_URL or asyncpg is None:
         return None
     if _pool is None:
-        _pool = await asyncpg.create_pool(DATABASE_URL, min_size=1, max_size=4)
-        async with _pool.acquire() as connection:
-            await connection.execute(
-                """
-                create table if not exists agent_runs (
-                    run_id text primary key,
-                    mission text not null,
-                    runtime text not null,
-                    quality_score integer not null,
-                    decision text not null,
-                    provider_status jsonb not null default '{}'::jsonb,
-                    artifact_markdown text not null default '',
-                    artifacts jsonb not null default '{}'::jsonb,
-                    trace jsonb not null default '[]'::jsonb,
-                    evaluation jsonb not null default '{}'::jsonb,
-                    cost_usd numeric not null default 0,
-                    created_at timestamptz not null default now()
-                );
-                """
-            )
+        try:
+            _pool = await asyncpg.create_pool(DATABASE_URL, min_size=1, max_size=4, ssl="require")
+            async with _pool.acquire() as connection:
+                await connection.execute(
+                    """
+                    create table if not exists agent_runs (
+                        run_id text primary key,
+                        mission text not null,
+                        runtime text not null,
+                        quality_score integer not null,
+                        decision text not null,
+                        provider_status jsonb not null default '{}'::jsonb,
+                        artifact_markdown text not null default '',
+                        artifacts jsonb not null default '{}'::jsonb,
+                        trace jsonb not null default '[]'::jsonb,
+                        evaluation jsonb not null default '{}'::jsonb,
+                        cost_usd numeric not null default 0,
+                        created_at timestamptz not null default now()
+                    );
+                    """
+                )
+            _pool_error = None
+        except Exception as exc:
+            _pool = None
+            _pool_error = f"{exc.__class__.__name__}: {exc}"
+            return None
     return _pool
 
 
@@ -149,4 +156,10 @@ async def list_runs(limit: int = 20) -> list[dict[str, Any]]:
 
 async def storage_status() -> str:
     pool = await _get_pool()
-    return "supabase-postgres" if pool is not None else "jsonl-local"
+    if pool is not None:
+        return "supabase-postgres"
+    if DATABASE_URL and _pool_error:
+        return f"postgres-unavailable: {_pool_error}"
+    if DATABASE_URL:
+        return "postgres-unavailable"
+    return "jsonl-local"
