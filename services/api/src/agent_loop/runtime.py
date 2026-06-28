@@ -6,6 +6,8 @@ from uuid import uuid4
 
 from agent_loop.agents import content_agents, incident_agents, migration_agents, research_agents, security_agents
 from agent_loop.finops import estimate_mission_cost
+from agent_loop.integrations.aegis_gateway import authorize_mission_ship
+from agent_loop.integrations.vap_delegate import delegate_to_vap
 from agent_loop.llm import make_llm
 from agent_loop.models import AgentContext, AgentEvent, Evaluation, MissionRequest, MissionResponse
 from agent_loop.storage import persist_run
@@ -67,10 +69,14 @@ def extract_provider_status(context: AgentContext) -> dict[str, str]:
 
 
 def build_lineage(context: AgentContext) -> dict[str, str | None]:
+    gateway = context.artifacts.get("gateway")
+    audit_case_id = None
+    if isinstance(gateway, dict):
+        audit_case_id = gateway.get("case_id")
     return {
         "run_id": context.run_id,
         "ecosystem": "aegisloop-agentops-workbench",
-        "aegisai_audit_case_id": context.artifacts.get("aegisai_audit_case_id"),
+        "aegisai_audit_case_id": audit_case_id or context.artifacts.get("aegisai_audit_case_id"),
         "vap_orchestrator": context.artifacts.get("vap_orchestrator"),
     }
 
@@ -107,10 +113,39 @@ async def run_mission(request: MissionRequest) -> MissionResponse:
     started = perf_counter()
     context = AgentContext(run_id=request.run_id or str(uuid4()), request=request)
     telemetry = MissionTelemetry(run_id=context.run_id, mission=request.mission)
-    with telemetry.span("mission.run", mode=request.mode, loop_mode=request.loop_mode):
-        for agent in build_fleet(request):
-            with telemetry.span("agent.execute", agent=agent.name):
-                await agent(context)
+
+    delegated = await delegate_to_vap(request)
+    if delegated:
+        context.artifacts.update(delegated)
+        context.trace.append(
+            AgentEvent(
+                agent="VAP Delegation",
+                status="done",
+                task="Delegate mission to Venkat AI Platform orchestrator.",
+                detail=f"Delegated to {delegated.get('vap_orchestrator', 'platform')}.",
+                artifact_keys=["final_markdown", "vap_orchestrator"],
+            )
+        )
+    else:
+        with telemetry.span("mission.run", mode=request.mode, loop_mode=request.loop_mode):
+            for agent in build_fleet(request):
+                with telemetry.span("agent.execute", agent=agent.name):
+                    await agent(context)
+
+    gateway = await authorize_mission_ship(
+        case_id=context.run_id,
+        mission=request.mission,
+        loop_mode=request.loop_mode,
+    )
+    context.artifacts["gateway"] = {
+        "decision": gateway.decision,
+        "requires_approval": gateway.requires_approval,
+        "case_id": gateway.case_id,
+        "reason": gateway.reason,
+    }
+    if gateway.case_id:
+        context.artifacts["aegisai_audit_case_id"] = gateway.case_id
+
     response = build_response(context, started, telemetry)
     await telemetry.export_langfuse()
     await persist_run(response.model_dump())
@@ -122,21 +157,56 @@ async def stream_mission(request: MissionRequest):
     context = AgentContext(run_id=request.run_id or str(uuid4()), request=request)
     telemetry = MissionTelemetry(run_id=context.run_id, mission=request.mission)
     yield {"type": "run_started", "run_id": context.run_id, "mission": request.mission}
-    emitted = 0
-    with telemetry.span("mission.stream", mode=request.mode):
-        for agent in build_fleet(request):
-            with telemetry.span("agent.execute", agent=agent.name):
-                await agent(context)
-            new_events: list[AgentEvent] = context.trace[emitted:]
-            emitted = len(context.trace)
-            for event in new_events:
-                yield {"type": "agent_event", "run_id": context.run_id, "event": event.model_dump()}
-            yield {
-                "type": "artifact_delta",
-                "run_id": context.run_id,
-                "artifact_keys": list(context.artifacts.keys()),
-                "provider_status": extract_provider_status(context),
-            }
+
+    delegated = await delegate_to_vap(request)
+    if delegated:
+        context.artifacts.update(delegated)
+        event = AgentEvent(
+            agent="VAP Delegation",
+            status="done",
+            task="Delegate mission to Venkat AI Platform orchestrator.",
+            detail=f"Delegated to {delegated.get('vap_orchestrator', 'platform')}.",
+            artifact_keys=["final_markdown", "vap_orchestrator"],
+        )
+        context.trace.append(event)
+        yield {"type": "agent_event", "run_id": context.run_id, "event": event.model_dump()}
+        yield {
+            "type": "artifact_delta",
+            "run_id": context.run_id,
+            "artifact_keys": list(context.artifacts.keys()),
+            "provider_status": extract_provider_status(context),
+        }
+    else:
+        emitted = 0
+        with telemetry.span("mission.stream", mode=request.mode):
+            for agent in build_fleet(request):
+                with telemetry.span("agent.execute", agent=agent.name):
+                    await agent(context)
+                new_events: list[AgentEvent] = context.trace[emitted:]
+                emitted = len(context.trace)
+                for event in new_events:
+                    yield {"type": "agent_event", "run_id": context.run_id, "event": event.model_dump()}
+                yield {
+                    "type": "artifact_delta",
+                    "run_id": context.run_id,
+                    "artifact_keys": list(context.artifacts.keys()),
+                    "provider_status": extract_provider_status(context),
+                }
+
+    gateway = await authorize_mission_ship(
+        case_id=context.run_id,
+        mission=request.mission,
+        loop_mode=request.loop_mode,
+    )
+    context.artifacts["gateway"] = {
+        "decision": gateway.decision,
+        "requires_approval": gateway.requires_approval,
+        "case_id": gateway.case_id,
+        "reason": gateway.reason,
+    }
+    if gateway.case_id:
+        context.artifacts["aegisai_audit_case_id"] = gateway.case_id
+
     response = build_response(context, started, telemetry)
     await telemetry.export_langfuse()
     await persist_run(response.model_dump())

@@ -67,9 +67,9 @@ flowchart TB
 | Mission telemetry spans | Implemented |
 | Optional Langfuse export | Implemented (env-gated) |
 | Run lineage metadata | Implemented (`artifacts.lineage`) |
-| AegisAI gateway wire-up | Planned |
-| VAP orchestrator delegation | Planned |
-| Netlify ↔ FastAPI proxy | Planned |
+| AegisAI gateway wire-up | **Implemented** | `integrations/aegis_gateway.py` for human `loop_mode` |
+| VAP orchestrator delegation | **Implemented** | `integrations/vap_delegate.py` when `VAP_DELEGATION_ENABLED=true` |
+| Netlify ↔ FastAPI proxy | **Implemented** | `AGENT_LOOP_API_URL` in `mission-run.ts` |
 
 ## Related repositories
 

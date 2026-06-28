@@ -161,6 +161,26 @@ export default async (req: Request, context: Context) => {
   }
 
   const request = (await req.json()) as MissionRequest;
+  const apiBase = process.env.AGENT_LOOP_API_URL;
+  if (apiBase) {
+    try {
+      const proxied = await fetch(`${apiBase.replace(/\/$/, "")}/api/missions/run`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(request),
+      });
+      if (proxied.ok) {
+        const payload = await proxied.json();
+        return Response.json({
+          ...payload,
+          runtime: `netlify-proxy/${payload.runtime ?? "uv-fastapi"}`,
+        });
+      }
+    } catch {
+      // Fall through to simplified local fleet when proxy is unavailable.
+    }
+  }
+
   const gatewayArtifact = await gatewayCompletion(request);
   const artifact = gatewayArtifact ?? localArtifact(request);
   const trace = [

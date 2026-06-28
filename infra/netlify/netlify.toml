@@ -11,6 +11,9 @@
   to = "/.netlify/functions/mission-run"
   status = 200
 
+# When AGENT_LOOP_API_URL is set on Netlify, mission-run.ts proxies to the full FastAPI runtime.
+# For streaming missions, point the UI directly at AGENT_LOOP_API_URL/api/missions/stream.
+
 [[headers]]
   for = "/*"
   [headers.values]
