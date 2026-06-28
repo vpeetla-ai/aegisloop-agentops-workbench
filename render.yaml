@@ -10,6 +10,6 @@ services:
     autoDeployTrigger: commit
     envVars:
       - key: ALLOWED_ORIGINS
-        value: https://venkat-ai.com,https://www.venkat-ai.com
+        value: https://venkat-ai.com,https://www.venkat-ai.com,https://aegisloop-agentops-workbench.vercel.app
       - key: DATABASE_URL
         sync: false

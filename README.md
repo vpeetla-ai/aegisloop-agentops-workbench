@@ -1,5 +1,9 @@
 # AegisLoop AgentOps Workbench
 
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://aegisloop-agentops-workbench.vercel.app)
+
+[▶ Live mission console](https://aegisloop-agentops-workbench.vercel.app) · [🚀 Deploy guide](docs/LIVE_DEMO.md) · [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md)
+
 AegisLoop is a production-style portfolio workbench for demonstrating orchestrated AI agent fleets: bounded missions, specialist handoffs, observable traces, evaluation gates, source coverage, and deployable runtime paths.
 
 See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for how this repo connects to AegisAI, VAP, and Enterprise RAG.
@@ -17,8 +21,8 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for how this repo connects to AegisAI
 | Run lineage metadata | **Implemented** | `artifacts.lineage` with `run_id` |
 | Live market/content data | **Implemented** | Research + content missions in FastAPI runtime |
 | Netlify serverless fleet | **Partial** | Simplified vs full Python fleet — see below |
-| AegisAI gateway integration | Planned | Lineage slot reserved |
-| VAP orchestrator delegation | Planned | |
+| AegisAI gateway integration | **Implemented** | `integrations/aegis_gateway.py` |
+| VAP orchestrator delegation | **Implemented** | `VAP_DELEGATION_ENABLED` |
 
 ## Ecosystem Context
 
