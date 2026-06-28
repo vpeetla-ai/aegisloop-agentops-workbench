@@ -2,6 +2,39 @@
 
 AegisLoop is a production-style portfolio workbench for demonstrating orchestrated AI agent fleets: bounded missions, specialist handoffs, observable traces, evaluation gates, source coverage, and deployable runtime paths.
 
+See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for how this repo connects to AegisAI, VAP, and Enterprise RAG.
+
+## Implementation Status
+
+| Capability | Status | Notes |
+| --- | --- | --- |
+| 5 mission fleets (research, content, incident, migration, security) | **Implemented** | Python agents in `services/api/src/agent_loop/agents/` |
+| Streaming NDJSON mission API | **Implemented** | `POST /api/missions/stream` |
+| Eval gates with reasons | **Implemented** | `runtime.evaluate()` |
+| FinOps cost estimates | **Implemented** | Non-zero for `gateway` mode via `finops.py` |
+| Mission telemetry spans | **Implemented** | Attached to `artifacts.telemetry_spans` |
+| Optional Langfuse export | **Implemented** | Set `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` |
+| Run lineage metadata | **Implemented** | `artifacts.lineage` with `run_id` |
+| Live market/content data | **Implemented** | Research + content missions in FastAPI runtime |
+| Netlify serverless fleet | **Partial** | Simplified vs full Python fleet — see below |
+| AegisAI gateway integration | Planned | Lineage slot reserved |
+| VAP orchestrator delegation | Planned | |
+
+## Ecosystem Context
+
+```mermaid
+flowchart LR
+  User["Mission UI"] --> API["FastAPI runtime"]
+  API --> Fleet["Specialist agent fleet"]
+  API --> Eval["Evaluation gates"]
+  API --> Fin["FinOps estimate"]
+  API --> Tel["Telemetry spans"]
+  Tel -.-> LF["Langfuse optional"]
+  GW["AegisAI gateway"] -.->|"human loop_mode"| API
+  VAP["VAP orchestrators"] -.->|"future"| API
+  RAG["Enterprise RAG"] -.->|"golden evals"| Eval
+```
+
 ## What Runs Where
 
 - Frontend app folder: `app/`
@@ -91,5 +124,8 @@ The stock-market and AI-trend missions try live data in the `uv FastAPI agents` 
 - UI review model split into Brief, Data, Trace, and Sources tabs.
 - Real-data mode is auto-selected for stock-market missions when the uv API is healthy.
 - Provider limitations are surfaced in the UI instead of hidden behind simulated values.
+- FinOps estimates, mission telemetry spans, optional Langfuse export, and lineage metadata on every run.
+
+**Netlify honesty note:** `infra/netlify/functions/mission-run.ts` is a simplified serverless fleet for portfolio deploys. For full agent coverage, live data paths, eval gates, and FinOps, use the `uv FastAPI` runtime locally or self-host `services/api/`.
 
 The UI remains static and dependency-light, while the production runtime lives in the `uv` Python service and Netlify Function facade.
