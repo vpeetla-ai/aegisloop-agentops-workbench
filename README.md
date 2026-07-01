@@ -20,6 +20,8 @@ AegisLoop is a production-style portfolio workbench for demonstrating orchestrat
 
 See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for how this repo connects to AegisAI, VAP, and Enterprise RAG.
 
+**Portfolio:** [Case study](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/case-studies/aegisloop-agentops.md) · [Architecture](docs/ARCHITECTURE.md) · [Deploy](docs/LIVE_DEMO.md)
+
 ## Implementation Status
 
 | Capability | Status | Notes |
