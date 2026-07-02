@@ -13,6 +13,10 @@
       "destination": "https://aegisloop-api.onrender.com/api/:path*"
     },
     {
+      "source": "/api/missions/stream",
+      "destination": "https://aegisloop-api.onrender.com/api/missions/stream"
+    },
+    {
       "source": "/api/missions/run",
       "destination": "https://aegisloop-api.onrender.com/api/missions/run"
     }
