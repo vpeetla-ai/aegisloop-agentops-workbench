@@ -70,6 +70,8 @@ POST /api/missions/stream
 | Langfuse | `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` |
 | Eval reasons | Attached to mission result payload |
 
+Canonical pattern: [TRACE_LINKED_OBSERVABILITY](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/TRACE_LINKED_OBSERVABILITY.md) — three levels (system / trace / node).
+
 ---
 
 ## Deployment modes
