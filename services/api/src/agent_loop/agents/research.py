@@ -75,11 +75,12 @@ class InvestmentBriefAgent(Agent):
         quotes = market_data["quotes"]
         headlines = context.artifacts["headlines"]
         regime = context.artifacts["regime"]
-        llm_text = await self.llm.complete(
+        completion = await self.llm.complete(
             "You write educational market analysis. Do not provide personalized financial advice.",
             f"Create a concise stock market analysis for {mission.audience}. Quotes: {quotes}. Movers: {market_data}. Headlines: {headlines}.",
         )
-        context.artifacts["final_markdown"] = llm_text or f"""# Today's Stock Market Analysis: {mission.topic}
+        self.meter_llm(context, completion)
+        context.artifacts["final_markdown"] = completion.text or f"""# Today's Stock Market Analysis: {mission.topic}
 
 **Audience:** {mission.audience}  
 **Region:** {mission.region}  

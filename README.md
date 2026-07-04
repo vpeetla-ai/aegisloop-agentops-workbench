@@ -33,7 +33,7 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for how this repo connects to AegisAI
 | 5 mission fleets (research, content, incident, migration, security) | **Implemented** | Python agents in `services/api/src/agent_loop/agents/` |
 | Streaming NDJSON mission API | **Implemented** | `POST /api/missions/stream` |
 | Eval gates with reasons | **Implemented** | `runtime.evaluate()` |
-| FinOps cost estimates | **Implemented** | Non-zero for `gateway` mode via `finops.py` |
+| FinOps cost estimates | **Implemented — real, not estimated** | Real token counts from Ollama/Netlify gateway responses, real cost from [agent-finops](https://github.com/vpeetla-ai/agent-finops), with a `MISSION_BUDGET_USD` guard that halts further agent dispatch on breach |
 | Mission telemetry spans | **Implemented** | Attached to `artifacts.telemetry_spans` |
 | Optional Langfuse export | **Implemented** | Set `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` |
 | Run lineage metadata | **Implemented** | `artifacts.lineage` with `run_id` |

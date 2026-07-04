@@ -13,3 +13,11 @@ services:
         value: https://venkat-ai.com,https://www.venkat-ai.com
       - key: DATABASE_URL
         sync: false
+      - key: AEGISLOOP_API_KEY
+        sync: false
+      - key: AGENTFINOPS_API_URL
+        sync: false
+      - key: AGENTFINOPS_API_KEY
+        sync: false
+      - key: MISSION_BUDGET_USD
+        value: "2.00"

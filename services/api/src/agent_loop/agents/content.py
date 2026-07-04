@@ -57,11 +57,12 @@ class EditorialPlannerAgent(Agent):
         trends = context.artifacts["trends"]
         angles = context.artifacts["angles"]
         audience_fit = context.artifacts["audience_fit"]
-        llm_text = await self.llm.complete(
+        completion = await self.llm.complete(
             "You create LinkedIn content plans for principal AI architects.",
             f"Audience: {mission.audience}. Trends: {trends}. Angles: {angles}.",
         )
-        context.artifacts["final_markdown"] = llm_text or f"""# Principal AI Architect Content Radar
+        self.meter_llm(context, completion)
+        context.artifacts["final_markdown"] = completion.text or f"""# Principal AI Architect Content Radar
 
 **Audience:** {mission.audience}  
 **Region:** {mission.region}  

@@ -5,7 +5,6 @@ from time import perf_counter
 from uuid import uuid4
 
 from agent_loop.agents import content_agents, incident_agents, migration_agents, research_agents, security_agents
-from agent_loop.finops import estimate_mission_cost
 from agent_loop.integrations.aegis_gateway import authorize_mission_ship
 from agent_loop.integrations.vap_delegate import delegate_to_vap
 from agent_loop.llm import make_llm
@@ -88,18 +87,13 @@ def build_response(context: AgentContext, started: float, telemetry: MissionTele
     if telemetry is not None:
         context.artifacts["telemetry_spans"] = telemetry.spans
     final_markdown = context.artifacts.get("final_markdown", "")
-    cost_usd = estimate_mission_cost(
-        context.request.mode,
-        context.trace,
-        final_markdown if isinstance(final_markdown, str) else "",
-        runtime_ms,
-    )
     evaluation = evaluate(context)
     response = MissionResponse(
         run_id=context.run_id,
         mission=context.request.mission,
         runtime=f"uv-fastapi/{context.request.mode}",
-        cost_usd=cost_usd,
+        cost_usd=context.finops_cost_usd,
+        budget_exceeded=context.finops_breached,
         artifact_markdown=final_markdown if isinstance(final_markdown, str) else "",
         artifacts=context.artifacts,
         provider_status=extract_provider_status(context),
@@ -131,6 +125,8 @@ async def run_mission(request: MissionRequest) -> MissionResponse:
             for agent in build_fleet(request):
                 with telemetry.span("agent.execute", agent=agent.name):
                     await agent(context)
+                if context.finops_breached:
+                    break
 
     gateway = await authorize_mission_ship(
         case_id=context.run_id,
@@ -192,6 +188,8 @@ async def stream_mission(request: MissionRequest):
                     "artifact_keys": list(context.artifacts.keys()),
                     "provider_status": extract_provider_status(context),
                 }
+                if context.finops_breached:
+                    break
 
     gateway = await authorize_mission_ship(
         case_id=context.run_id,

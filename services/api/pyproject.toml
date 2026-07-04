@@ -10,6 +10,7 @@ dependencies = [
   "pydantic>=2.8.0",
   "python-dotenv>=1.0.1",
   "uvicorn[standard]>=0.30.0",
+  "agent-finops @ git+https://github.com/vpeetla-ai/agent-finops.git",
 ]
 
 [project.scripts]

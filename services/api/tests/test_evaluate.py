@@ -4,7 +4,6 @@ import unittest
 
 from agent_loop.models import AgentContext, AgentEvent, MissionInput, MissionRequest
 from agent_loop.runtime import evaluate, extract_provider_status
-from agent_loop.finops import estimate_mission_cost
 
 
 class EvaluateTests(unittest.TestCase):
@@ -42,17 +41,6 @@ class EvaluateTests(unittest.TestCase):
         context.artifacts["market_data"] = {"source_status": {"yahoo": "live", "bloomberg": "not_configured"}}
         status = extract_provider_status(context)
         self.assertEqual(status["yahoo"], "live")
-
-
-class FinOpsTests(unittest.TestCase):
-    def test_local_mode_is_zero_cost(self) -> None:
-        cost = estimate_mission_cost("local", [], "# Brief", 1000)
-        self.assertEqual(cost, 0.0)
-
-    def test_gateway_mode_estimates_nonzero(self) -> None:
-        trace = [AgentEvent(agent="A", status="done", task="t", detail="x" * 200)]
-        cost = estimate_mission_cost("gateway", trace, "# " + ("word " * 400), 5000)
-        self.assertGreater(cost, 0.0)
 
 
 if __name__ == "__main__":

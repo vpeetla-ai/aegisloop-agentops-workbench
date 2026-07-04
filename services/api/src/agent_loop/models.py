@@ -48,6 +48,7 @@ class MissionResponse(BaseModel):
     mission: MissionKind
     runtime: str
     cost_usd: float = 0.0
+    budget_exceeded: bool = False
     artifact_markdown: str
     artifacts: dict[str, Any]
     provider_status: dict[str, str] = Field(default_factory=dict)
@@ -60,3 +61,8 @@ class AgentContext(BaseModel):
     request: MissionRequest
     artifacts: dict[str, Any] = Field(default_factory=dict)
     trace: list[AgentEvent] = Field(default_factory=list)
+    # Real cost from agent-finops, accumulated as agents complete real LLM calls —
+    # replaces the old character-count cost heuristic. finops_breached halts
+    # further agent dispatch once MISSION_BUDGET_USD is exceeded.
+    finops_cost_usd: float = 0.0
+    finops_breached: bool = False
