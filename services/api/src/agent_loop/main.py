@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import os
+import secrets
+from typing import Annotated
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
@@ -45,6 +47,17 @@ app.add_middleware(
 )
 
 
+def _require_api_key(x_api_key: Annotated[str | None, Header()] = None) -> None:
+    """Gate /api/missions/run and /api/missions/stream — these call a real LLM and
+    incur real cost per hit. Only enforced when AEGISLOOP_API_KEY is set (dev/demo
+    default stays open)."""
+    expected = os.getenv("AEGISLOOP_API_KEY")
+    if not expected:
+        return
+    if not x_api_key or not secrets.compare_digest(x_api_key, expected):
+        raise HTTPException(status_code=401, detail="Invalid or missing X-API-Key")
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "runtime": "uv-fastapi", "storage": await storage_status(), "cost_usd": 0}
@@ -64,12 +77,12 @@ async def runs(limit: int = 20):
     return {"runs": await list_runs(limit)}
 
 
-@app.post("/api/missions/run")
+@app.post("/api/missions/run", dependencies=[Depends(_require_api_key)])
 async def run_mission_endpoint(request: MissionRequest):
     return await run_mission(request)
 
 
-@app.post("/api/missions/stream")
+@app.post("/api/missions/stream", dependencies=[Depends(_require_api_key)])
 async def stream_mission_endpoint(request: MissionRequest):
     async def event_stream():
         async for payload in stream_mission(request):

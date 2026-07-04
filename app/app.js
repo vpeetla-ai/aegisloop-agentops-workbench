@@ -779,10 +779,13 @@ async function runBackendMission() {
 
   const endpoint = elements.llmMode.value === "api" ? `${API_BASE}/api/missions/stream` : "/api/missions/run";
   const mode = elements.llmMode.value === "gateway" ? "gateway" : "local";
+  const backendApiKey = document.getElementById("backendApiKey")?.value?.trim();
+  const requestHeaders = { "Content-Type": "application/json" };
+  if (backendApiKey) requestHeaders["X-API-Key"] = backendApiKey;
   try {
     const response = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: requestHeaders,
       body: JSON.stringify({
         mission: state.scenarioKey,
         mode,

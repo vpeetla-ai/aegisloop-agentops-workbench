@@ -46,7 +46,14 @@ Required environment variables:
 ```bash
 DATABASE_URL=postgresql://...
 ALLOWED_ORIGINS=https://venkat-ai.com,https://www.venkat-ai.com
+AEGISLOOP_API_KEY=...
 ```
+
+`AEGISLOOP_API_KEY` gates `POST /api/missions/run` and `POST /api/missions/stream` — both
+call a real LLM and cost real money per hit. **Set this before treating a deployment as
+production**; without it, those two routes have no authentication at all. If you also deploy
+the Netlify `mission-run` function (§4 below), set the same value there too — it proxies to
+this backend and needs the key to pass enforcement once it's on.
 
 Render setup:
 

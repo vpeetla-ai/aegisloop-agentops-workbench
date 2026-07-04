@@ -70,6 +70,7 @@ flowchart TB
 | AegisAI gateway wire-up | **Implemented** | `integrations/aegis_gateway.py` for human `loop_mode` |
 | VAP orchestrator delegation | **Implemented** | `integrations/vap_delegate.py` when `VAP_DELEGATION_ENABLED=true` |
 | Netlify ↔ FastAPI proxy | **Implemented** | `AGENT_LOOP_API_URL` in `mission-run.ts` |
+| API-key gate on mission-run/stream | **Implemented** | Set `AEGISLOOP_API_KEY` on both the FastAPI backend and the Netlify function — both previously had zero caller auth despite calling a real LLM; see [ai-architecture-portfolio ADR-010](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-010-aegisloop-auth-gate.md) |
 
 ## Related repositories
 

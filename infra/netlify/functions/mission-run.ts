@@ -160,13 +160,22 @@ export default async (req: Request, context: Context) => {
     return new Response("Method not allowed", { status: 405 });
   }
 
+  // Gate — this call incurs a real OpenAI cost (gatewayCompletion below). Only
+  // enforced when AEGISLOOP_API_KEY is set, so local dev/demo stays open.
+  const expectedKey = process.env.AEGISLOOP_API_KEY;
+  if (expectedKey && req.headers.get("x-api-key") !== expectedKey) {
+    return Response.json({ detail: "Invalid or missing X-API-Key" }, { status: 401 });
+  }
+
   const request = (await req.json()) as MissionRequest;
   const apiBase = process.env.AGENT_LOOP_API_URL;
   if (apiBase) {
     try {
+      const proxiedHeaders: Record<string, string> = { "Content-Type": "application/json" };
+      if (expectedKey) proxiedHeaders["X-API-Key"] = expectedKey;
       const proxied = await fetch(`${apiBase.replace(/\/$/, "")}/api/missions/run`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: proxiedHeaders,
         body: JSON.stringify(request),
       });
       if (proxied.ok) {
