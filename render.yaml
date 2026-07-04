@@ -21,3 +21,11 @@ services:
         sync: false
       - key: MISSION_BUDGET_USD
         value: "2.00"
+      - key: VAP_API_BASE_URL
+        sync: false
+      - key: VAP_DELEGATION_ENABLED
+        value: "false"
+      - key: VAP_ORCHESTRATOR_ID
+        sync: false
+      - key: VAP_API_KEY
+        sync: false

@@ -40,7 +40,7 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for how this repo connects to AegisAI
 | Live market/content data | **Implemented** | Research + content missions in FastAPI runtime |
 | Netlify serverless fleet | **Partial** | Simplified vs full Python fleet — see below |
 | AegisAI gateway integration | **Implemented** | `integrations/aegis_gateway.py` |
-| VAP orchestrator delegation | **Implemented** | `VAP_DELEGATION_ENABLED` |
+| VAP orchestrator delegation (real A2A protocol) | **Implemented** | `VAP_DELEGATION_ENABLED` — gated on a real `GET /orchestrators/{id}/agent-card` discovery call before ever invoking `/run`, not a direct guess. See the A2A ADR in [ai-architecture-portfolio](https://github.com/vpeetla-ai/ai-architecture-portfolio) |
 
 ## Ecosystem Context
 
