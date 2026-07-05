@@ -33,6 +33,7 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for how this repo connects to AegisAI
 | 5 mission fleets (research, content, incident, migration, security) | **Implemented** | Python agents in `services/api/src/agent_loop/agents/` |
 | Streaming NDJSON mission API | **Implemented** | `POST /api/missions/stream` |
 | Eval gates with reasons | **Implemented** | `runtime.evaluate()` |
+| Golden eval registry as a real CI gate | **Implemented** | `tests/test_golden_eval_gate.py` runs the shared `aegisloop_mission_gates_v1` suite from [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) against the real `runtime.evaluate()` function — CI checks out that repo and fails the build on regression, not just fixture validation |
 | FinOps cost estimates | **Implemented — real, not estimated** | Real token counts from Ollama/Netlify gateway responses, real cost from [agent-finops](https://github.com/vpeetla-ai/agent-finops), with a `MISSION_BUDGET_USD` guard that halts further agent dispatch on breach |
 | Mission telemetry spans | **Implemented** | Attached to `artifacts.telemetry_spans` |
 | Optional Langfuse export | **Implemented** | Set `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` |
