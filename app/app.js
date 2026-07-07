@@ -139,6 +139,9 @@ const elements = {
   toolCalls: $("#toolCalls"),
   cost: $("#cost"),
   latency: $("#latency"),
+  p50Latency: $("#p50Latency"),
+  p95Latency: $("#p95Latency"),
+  failureRate: $("#failureRate"),
   budget: $("#budget"),
   budgetValue: $("#budgetValue"),
   risk: $("#risk"),
@@ -316,6 +319,26 @@ function renderStaticPanels() {
     .join("");
 }
 
+async function fetchFleetMetrics() {
+  if (!state.apiAvailable) {
+    elements.p50Latency.textContent = "—";
+    elements.p95Latency.textContent = "—";
+    elements.failureRate.textContent = "—";
+    return;
+  }
+  try {
+    const response = await fetch(`${API_BASE}/api/metrics?limit=100`, { cache: "no-store" });
+    if (!response.ok) return;
+    const metrics = await response.json();
+    elements.p50Latency.textContent = metrics.p50_ms ? `${metrics.p50_ms}ms` : "—";
+    elements.p95Latency.textContent = metrics.p95_ms ? `${metrics.p95_ms}ms` : "—";
+    elements.failureRate.textContent =
+      metrics.sample_size > 0 ? `${metrics.failure_rate_pct}%` : "—";
+  } catch {
+    // keep placeholders
+  }
+}
+
 async function checkApiAvailability() {
   try {
     const response = await fetch(`${API_BASE}/health`, { cache: "no-store" });
@@ -326,6 +349,7 @@ async function checkApiAvailability() {
   if (state.scenarioKey === "research" && state.apiAvailable && elements.llmMode.value === "local") {
     elements.llmMode.value = "api";
   }
+  await fetchFleetMetrics();
   renderStaticPanels();
 }
 

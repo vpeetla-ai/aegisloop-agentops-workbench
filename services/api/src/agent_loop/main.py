@@ -11,7 +11,7 @@ from fastapi.responses import StreamingResponse
 
 from agent_loop.models import MissionRequest
 from agent_loop.runtime import encode_stream_event, run_mission, stream_mission
-from agent_loop.storage import list_runs, storage_status
+from agent_loop.storage import aggregate_run_metrics, list_runs, storage_status
 
 DEFAULT_ALLOWED_ORIGINS = [
     "http://localhost:4173",
@@ -75,6 +75,11 @@ async def missions():
 @app.get("/api/runs")
 async def runs(limit: int = 20):
     return {"runs": await list_runs(limit)}
+
+
+@app.get("/api/metrics")
+async def metrics(limit: int = 100, mission: str | None = None):
+    return await aggregate_run_metrics(limit=limit, mission=mission)
 
 
 @app.post("/api/missions/run", dependencies=[Depends(_require_api_key)])

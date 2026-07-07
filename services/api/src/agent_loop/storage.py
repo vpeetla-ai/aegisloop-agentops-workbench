@@ -118,8 +118,23 @@ async def persist_run(record: dict[str, Any]) -> None:
 def _list_runs_file(limit: int = 20) -> list[dict[str, Any]]:
     if not RUN_LOG.exists():
         return []
-    lines = RUN_LOG.read_text(encoding="utf-8").splitlines()[-limit:]
-    return [json.loads(line) for line in reversed(lines) if line.strip()]
+    lines = RUN_LOG.read_text(encoding="utf-8").splitlines()
+    selected = [line for line in lines if line.strip()][-limit:]
+    return [json.loads(line) for line in reversed(selected)]
+
+
+async def load_runs_for_metrics(limit: int = 100, mission: str | None = None) -> list[dict[str, Any]]:
+    runs = _list_runs_file(max(limit, 20))
+    if mission:
+        runs = [run for run in runs if run.get("mission") == mission]
+    return runs[:limit]
+
+
+async def aggregate_run_metrics(limit: int = 100, mission: str | None = None) -> dict[str, Any]:
+    from agent_loop.metrics import aggregate_metrics
+
+    runs = await load_runs_for_metrics(limit=limit, mission=mission)
+    return aggregate_metrics(runs)
 
 
 async def list_runs(limit: int = 20) -> list[dict[str, Any]]:
