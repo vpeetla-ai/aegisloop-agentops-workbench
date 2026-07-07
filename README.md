@@ -45,6 +45,8 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for how this repo connects to AegisAI
 
 ## Ecosystem Context
 
+Canonical: [`docs/diagrams/canonical-architecture.mmd`](docs/diagrams/canonical-architecture.mmd)
+
 ```mermaid
 flowchart LR
   User["Mission UI"] --> API["FastAPI runtime"]

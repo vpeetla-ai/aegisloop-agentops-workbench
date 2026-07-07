@@ -1,0 +1,11 @@
+flowchart TB
+  UI["Mission console UI"] --> API["FastAPI mission runtime"]
+  API --> FLEET["Specialist agent fleet<br/>research · content · incident…"]
+  API --> EVAL["Eval gates + golden registry"]
+  API --> FIN["agent-finops metering"]
+  API --> MET["P50/P95 · failure rate<br/>GET /api/metrics"]
+  API --> TEL["Mission telemetry spans"]
+  TEL -.-> LF["Langfuse optional"]
+  GW["AegisAI gateway"] -.->|"human loop_mode"| API
+  VAP["VAP A2A delegation"] -.-> API
+  RAG["Enterprise RAG"] -.-> EVAL
