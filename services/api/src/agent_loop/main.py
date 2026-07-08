@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import secrets
+from datetime import datetime, timezone
 from typing import Annotated
 
 import uvicorn
@@ -75,6 +76,22 @@ async def missions():
 @app.get("/api/runs")
 async def runs(limit: int = 20):
     return {"runs": await list_runs(limit)}
+
+
+@app.get("/api/v1/ops/metrics")
+async def ops_metrics(limit: int = 100, mission: str | None = None):
+    raw = await aggregate_run_metrics(limit=limit, mission=mission)
+    success = round(100.0 - raw.get("failure_rate_pct", 0.0), 1)
+    return {
+        "service": "aegisloop-agentops-workbench",
+        "collected_at": datetime.now(timezone.utc).isoformat(),
+        "total_runs": raw.get("total", 0),
+        "success_rate_pct": success,
+        "p95_latency_ms": int(raw.get("p95_ms", 0)) or None,
+        "active_entities": raw.get("sample_size", 0),
+        "slo": {"target_uptime_pct": 99.5, "success_target_pct": 95.0},
+        "extra": raw,
+    }
 
 
 @app.get("/api/metrics")

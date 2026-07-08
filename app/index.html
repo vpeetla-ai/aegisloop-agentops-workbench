@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AegisLoop AgentOps Workbench</title>
+    <link rel="stylesheet" href="architect-panel.css?v=1" />
     <link rel="stylesheet" href="styles.css?v=4" />
   </head>
   <body>
@@ -20,6 +21,7 @@
       </div>
     </header>
     <main class="shell">
+      <div id="architect-root" class="architect-shell"></div>
       <section class="command-center" aria-label="AegisLoop agent operations workbench">
         <aside class="control-rail">
           <div class="brand-lockup">
@@ -338,6 +340,8 @@
       </article>
     </template>
 
+    <script src="architect-config.js?v=1"></script>
+    <script src="architect-panel.js?v=1"></script>
     <script src="app.js?v=10"></script>
   </body>
 </html>
