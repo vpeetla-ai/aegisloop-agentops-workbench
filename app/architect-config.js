@@ -16,4 +16,12 @@ window.ARCHITECT_CONFIG = {
     { decision: "Token budget slider", gain: "FinOps-aware mission bounds", trade: "May truncate long research paths" },
     { decision: "Render + Vercel split", gain: "Cheap static UI + API wake", trade: "Cold-start delay on first mission" },
   ],
+  adrLinks: [
+    { title: "ADR-012 — AegisLoop FinOps metering", href: "https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/adr/ADR-012-aegisloop-finops-metering.md" },
+    { title: "Case study — AegisLoop", href: "https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/case-studies/aegisloop-agentops-workbench.md" },
+  ],
+  docsLinks: [
+    { title: "Architecture", href: "https://github.com/vpeetla-ai/aegisloop-agentops-workbench/blob/main/docs/ARCHITECTURE.md" },
+    { title: "SLO targets", href: "https://github.com/vpeetla-ai/aegisloop-agentops-workbench/blob/main/docs/SLO.md" },
+  ],
 };
