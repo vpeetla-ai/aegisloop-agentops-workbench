@@ -5,18 +5,26 @@
   --line: #d9e1ec;
   --paper: #f8fafc;
   --panel: #ffffff;
-  --blue: #1555c0;
-  --blue-2: #e8f0ff;
+  --blue: #0f766e;
+  --blue-2: #ecfdf5;
   --green: #0d8b62;
   --green-2: #e6f6ef;
   --orange: #f26b21;
   --orange-2: #fff0e6;
-  --purple: #6246c7;
-  --purple-2: #f0edff;
+  --purple: #1555c0;
+  --purple-2: #e8f0ff;
   --red: #bf2e36;
   --red-2: #fff0f1;
   --shadow: 0 24px 80px rgba(26, 37, 64, 0.12);
   --radius: 8px;
+  --vp-accent: #0f766e;
+  --vp-accent-hover: #115e59;
+  --vp-accent-subtle: #ecfdf5;
+  --vp-border: #d9e1ec;
+  --vp-text: #111827;
+  --vp-text-muted: #5b6472;
+  --vp-surface: #ffffff;
+  --vp-surface-hover: #f8fafc;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -30,8 +38,8 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    linear-gradient(135deg, rgba(21, 85, 192, 0.09), transparent 34%),
-    linear-gradient(315deg, rgba(13, 139, 98, 0.08), transparent 38%),
+    linear-gradient(135deg, rgba(15, 118, 110, 0.1), transparent 34%),
+    linear-gradient(315deg, rgba(21, 85, 192, 0.07), transparent 38%),
     var(--paper);
   color: var(--ink);
 }
