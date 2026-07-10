@@ -161,10 +161,11 @@ The UI remains static and dependency-light, while the production runtime lives i
 
 **Business function:** AgentOps workbench — missions, traces, eval gates, fleet monitoring.
 
-Staff+ prep crosswalk — [playbook](https://github.com/vpeetla-ai/ai-architect-interview-playbook) · [study UI](https://ai-architect-interview-playbook-9xs.vercel.app) · [Practice Arena](https://ai-architect-practice-arena.vercel.app) · [org matrix](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/REPO_INTERVIEW_MAP.md). Only entries this repo honestly exercises.
+Staff+ prep crosswalk — [playbook](https://github.com/vpeetla-ai/ai-architect-interview-playbook) · [study UI](https://ai-architect-interview-playbook.vercel.app) · [Practice Arena](https://ai-architect-practice-arena.vercel.app) · [org matrix](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/REPO_INTERVIEW_MAP.md). Only entries this repo honestly exercises.
 
 | Category | Entry | Fit |
 |----------|-------|-----|
-| System design | [LLM eval & observability](https://ai-architect-interview-playbook-9xs.vercel.app/q/ai-system-design/07-llm-evaluation-observability-platform) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/ai-system-design/07-llm-evaluation-observability-platform.md)) | Primary — traces, mission quality gates |
-| System design | [Agent orchestration](https://ai-architect-interview-playbook-9xs.vercel.app/q/ai-system-design/03-agent-tool-use-orchestration-platform) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/ai-system-design/03-agent-tool-use-orchestration-platform.md)) | Mission invoke / VAP A2A delegation |
-| Trade-offs | [Cost vs latency vs safety](https://ai-architect-interview-playbook-9xs.vercel.app/q/scalability-governance-tradeoffs/01-cost-vs-latency-vs-safety) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/scalability-governance-tradeoffs/01-cost-vs-latency-vs-safety.md)) | Meters via agent-finops; eval before promote |
+| System design | [LLM eval & observability](https://ai-architect-interview-playbook.vercel.app/q/ai-system-design/07-llm-evaluation-observability-platform/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/ai-system-design/07-llm-evaluation-observability-platform.md)) | Primary — traces, mission quality gates |
+| System design | [Agent orchestration](https://ai-architect-interview-playbook.vercel.app/q/ai-system-design/03-agent-tool-use-orchestration-platform/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/ai-system-design/03-agent-tool-use-orchestration-platform.md)) | Mission invoke / VAP A2A delegation |
+| Trade-offs | [Cost vs latency vs safety](https://ai-architect-interview-playbook.vercel.app/q/scalability-governance-tradeoffs/01-cost-vs-latency-vs-safety/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/scalability-governance-tradeoffs/01-cost-vs-latency-vs-safety.md)) | Meters via agent-finops; eval before promote |
+
