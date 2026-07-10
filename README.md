@@ -17,6 +17,7 @@ git clone https://github.com/vpeetla-ai/vpeetla-ai-skills.git
 ---
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://aegisloop-agentops-workbench.vercel.app)
+[![API](https://img.shields.io/badge/API-Render-46E3B7)](https://aegisloop-api.onrender.com/health)
 
 [▶ Live mission console](https://aegisloop-agentops-workbench.vercel.app) · [🚀 Deploy guide](docs/LIVE_DEMO.md) · [Architecture hub](docs/ARCHITECTURE.md) · [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md)
 
@@ -34,6 +35,7 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for how this repo connects to AegisAI
 | Streaming NDJSON mission API | **Implemented** | `POST /api/missions/stream` |
 | Eval gates with reasons | **Implemented** | `runtime.evaluate()` |
 | Golden eval registry as a real CI gate | **Implemented** | `tests/test_golden_eval_gate.py` runs the shared `aegisloop_mission_gates_v1` suite from [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) against the real `runtime.evaluate()` function — CI checks out that repo and fails the build on regression, not just fixture validation |
+| Render FastAPI runtime | **Implemented** | [aegisloop-api.onrender.com](https://aegisloop-api.onrender.com/health) — cold start on free tier |
 | FinOps cost estimates | **Implemented — real, not estimated** | Real token counts from Ollama/Netlify gateway responses, real cost from [agent-finops](https://github.com/vpeetla-ai/agent-finops), with a `MISSION_BUDGET_USD` guard that halts further agent dispatch on breach |
 | Mission telemetry spans | **Implemented** | Attached to `artifacts.telemetry_spans` |
 | Optional Langfuse export | **Implemented** | Set `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` |
@@ -52,7 +54,7 @@ flowchart LR
   User["Mission UI"] --> API["FastAPI runtime"]
   API --> Fleet["Specialist agent fleet"]
   API --> Eval["Evaluation gates"]
-  API --> Fin["FinOps estimate"]
+  API --> Fin["FinOps metering (agent-finops)"]
   API --> Tel["Telemetry spans"]
   Tel -.-> LF["Langfuse optional"]
   GW["AegisAI gateway"] -.->|"human loop_mode"| API
@@ -149,7 +151,7 @@ The stock-market and AI-trend missions try live data in the `uv FastAPI agents` 
 - UI review model split into Brief, Data, Trace, and Sources tabs.
 - Real-data mode is auto-selected for stock-market missions when the uv API is healthy.
 - Provider limitations are surfaced in the UI instead of hidden behind simulated values.
-- FinOps estimates, mission telemetry spans, optional Langfuse export, and lineage metadata on every run.
+- FinOps metering (real token counts via agent-finops), mission telemetry spans, optional Langfuse export, and lineage metadata on every run.
 
 **Netlify honesty note:** `infra/netlify/functions/mission-run.ts` is a simplified serverless fleet for portfolio deploys. For full agent coverage, live data paths, eval gates, and FinOps, use the `uv FastAPI` runtime locally or self-host `services/api/`.
 
