@@ -765,6 +765,10 @@ async function runMission() {
   renderRun();
 
   const agents = scenarios[state.scenarioKey].agents;
+  if (window.GlassBox) {
+    // Local demo: phase order only — labeled demo_fallback, no invented duration_ms.
+    window.GlassBox.onLocalAgents(agents);
+  }
   try {
     for (let index = 0; index < agents.length; index += 1) {
       if (!state.running) return;
@@ -863,6 +867,9 @@ async function consumeMissionStream(response) {
         const runningIndex = scenarios[state.scenarioKey].agents.findIndex(([name]) => name === item.agent || item.agent.includes(name));
         if (runningIndex >= 0) state.activeAgent = runningIndex;
         writeScratch(item.agent, [item.task, item.detail, `Artifacts: ${(item.artifact_keys || []).join(", ") || "none yet"}`]);
+        if (window.GlassBox) {
+          window.GlassBox.onAgentEvent(item, scenarios[state.scenarioKey].agents);
+        }
         renderRun();
       }
       if (event.type === "artifact_delta") {
@@ -905,6 +912,9 @@ function renderBackendResult(payload) {
   ]);
   renderArtifactPanels(payload);
   renderRun();
+  if (window.GlassBox) {
+    window.GlassBox.onMissionComplete(payload);
+  }
 }
 
 async function stepRun() {
@@ -945,6 +955,7 @@ function resetRun(clearArtifact = true) {
   state.traces = [];
   state.providerStatus = {};
   elements.traceLog.innerHTML = "";
+  if (window.GlassBox) window.GlassBox.reset();
   if (clearArtifact) {
     elements.artifactTitle.textContent = `${scenarios[state.scenarioKey].title} will appear here`;
     elements.artifactSubtitle.textContent = "Brief, source data, trace, and provider status are separated for review.";

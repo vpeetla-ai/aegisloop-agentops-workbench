@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AegisLoop AgentOps Workbench</title>
-    <link rel="stylesheet" href="architect-panel.css?v=1" />
-    <link rel="stylesheet" href="styles.css?v=4" />
+    <link rel="stylesheet" href="architect-panel.css?v=2" />
+    <link rel="stylesheet" href="styles.css?v=5" />
   </head>
   <body>
     <header class="top-app-bar">
@@ -20,17 +20,105 @@
         </div>
       </div>
     </header>
-    <main class="shell">
-      <div id="workbench-product">
-      <section class="command-center" aria-label="AegisLoop agent operations workbench">
-        <aside class="control-rail">
-          <div class="brand-lockup">
-            <div class="mark" aria-hidden="true">AG</div>
+
+    <main class="shell gb-shell">
+      <div class="gb-hero">
+        <p class="eyebrow">AgentOps workbench</p>
+        <h1>AegisLoop — glass-box mission control</h1>
+        <p class="lede">
+          Run a bounded mission and watch specialist agents execute under policy, budget, and evaluation gates.
+          Architecture and live SLOs on the left · honest per-agent span replay in the center · product on the right.
+        </p>
+      </div>
+
+      <div class="gb-workbench">
+        <!-- LEFT: architecture + live metrics (mounted by architect-panel.js) -->
+        <aside id="gb-rail" class="gb-rail" aria-label="Architecture and metrics"></aside>
+
+        <!-- CENTER: honest agent pipeline from telemetry_spans / trace -->
+        <section id="gb-center" class="gb-center" aria-label="Mission pipeline glass-box">
+          <div class="gb-center-head">
+            <h2>Mission pipeline · agent span replay</h2>
+            <span id="gbSourceBadge" class="gb-source-badge">awaiting run</span>
+          </div>
+
+          <header class="runway-header gb-mission-head">
             <div>
-              <p class="eyebrow">AgentOps Workbench</p>
-              <h1>AegisLoop</h1>
+              <p class="eyebrow">Principal AI Architect Operating Model</p>
+              <h2 id="missionTitle">Production Incident Triage</h2>
+              <p id="missionCopy">
+                Orchestrate specialist agents through bounded planning, tool execution,
+                evaluation, memory updates, and ship/no-ship control.
+              </p>
+            </div>
+            <div class="status-card">
+              <span id="runStatus" class="status-pill">Ready</span>
+              <strong id="qualityScore">0%</strong>
+              <span>quality score</span>
+            </div>
+          </header>
+
+          <div id="gbPipeline" class="gb-pipeline" aria-live="polite"></div>
+          <div id="architectureFlow" class="architecture-flow gb-flow-hidden" aria-hidden="true"></div>
+
+          <div class="gb-gate" id="gbGate">
+            Pick a mission → Run → watch real <code>agent.execute</code> spans (duration_ms from the API).
+          </div>
+          <div id="gbEventLog" class="gb-event-log" aria-live="polite">
+            <div class="muted" style="font-style: italic">No spans yet — run a mission to replay the fleet.</div>
+          </div>
+          <div id="gbOpsStrip" class="gb-ops-strip">
+            <span><strong>agents</strong> —</span>
+            <span><strong>runtime</strong> n/a</span>
+            <span><strong>decision</strong> awaiting</span>
+            <span><strong>cost</strong> $0.00</span>
+          </div>
+
+          <div class="runtime-status gb-runtime-status">
+            <div>
+              <span>Current agent</span>
+              <strong id="liveAgentName">Orchestrator</strong>
+            </div>
+            <div>
+              <span>Current task</span>
+              <strong id="liveAgentTask">Waiting for mission input</strong>
             </div>
           </div>
+          <div id="agentScratchpad" class="scratchpad">
+            <strong>Scratchpad</strong>
+            <p>Agent thoughts, tool outputs, and handoff payloads stream here during the run.</p>
+          </div>
+
+          <div class="panel orchestrator-panel gb-orch-compact">
+            <div class="panel-heading">
+              <span class="icon purple" aria-hidden="true">✦</span>
+              <h2>Orchestrator</h2>
+            </div>
+            <div class="orchestrator-core">
+              <div class="pulse-ring" aria-hidden="true"></div>
+              <div>
+                <strong id="orchestratorState">Waiting for mission</strong>
+                <span id="orchestratorDetail">Goal owner, planner, budget governor</span>
+              </div>
+            </div>
+            <div class="handoff-strip" id="handoffStrip"></div>
+          </div>
+
+          <div class="panel agents-panel">
+            <div class="panel-heading">
+              <span class="icon orange" aria-hidden="true">⬢</span>
+              <h2>Specialist Agents</h2>
+            </div>
+            <div id="agentList" class="agent-list"></div>
+          </div>
+        </section>
+
+        <!-- RIGHT: product UX -->
+        <aside id="workbench-product" class="gb-product" aria-label="Mission product">
+          <p class="gb-guided">
+            <strong>1.</strong> Pick a mission profile → <strong>2.</strong> Run mission →
+            <strong>3.</strong> Inspect the brief and per-agent spans in the center.
+          </p>
 
           <div class="panel scenario-panel">
             <div class="panel-heading">
@@ -96,205 +184,63 @@
             <input id="backendApiKey" type="password" placeholder="X-API-Key" />
           </div>
 
-          <div class="actions" style="position:sticky;bottom:12px;z-index:5;background:rgba(255,255,255,0.95);padding:10px;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow)">
+          <div class="gb-run-row actions">
             <button id="startRun" class="primary" type="button">Run mission</button>
             <button id="stepRun" type="button">Step</button>
             <button id="resetRun" type="button">Reset</button>
           </div>
-        </aside>
 
-        <section class="runway">
-          <header class="runway-header">
-            <div>
-              <p class="eyebrow">Principal AI Architect Operating Model</p>
-              <h2 id="missionTitle">Production Incident Triage</h2>
-              <p id="missionCopy">
-                Orchestrate specialist agents through bounded planning, tool execution,
-                evaluation, memory updates, and ship/no-ship control.
-              </p>
+          <div class="panel mission-panel">
+            <div class="panel-heading">
+              <span class="icon green" aria-hidden="true">▣</span>
+              <h2>Mission UI</h2>
             </div>
-            <div class="status-card">
-              <span id="runStatus" class="status-pill">Ready</span>
-              <strong id="qualityScore">0%</strong>
-              <span>quality score</span>
-            </div>
-          </header>
-
-          <div class="section-label">
-            <span>1</span>
-            <div>
-              <strong>Mission Workspace</strong>
-              <p>Set the business question, inspect the generated deliverable, and copy the output.</p>
-            </div>
-          </div>
-          <section class="mission-workbench" aria-label="Mission workbench">
-            <div class="panel mission-panel">
-              <div class="panel-heading">
-                <span class="icon green" aria-hidden="true">▣</span>
-                <h2>Mission UI</h2>
-              </div>
-              <form id="missionForm" class="mission-form">
-                <div class="field-grid">
-                  <label>
-                    Topic / company
-                    <input id="missionTopic" type="text" value="AI agent platforms for mid-market enterprises" />
-                  </label>
-                  <label>
-                    Audience
-                    <input id="missionAudience" type="text" value="VP Product and CTO" />
-                  </label>
-                  <label>
-                    Region
-                    <input id="missionRegion" type="text" value="North America" />
-                  </label>
-                  <label>
-                    Time horizon
-                    <input id="missionHorizon" type="text" value="next 12 months" />
-                  </label>
-                </div>
+            <form id="missionForm" class="mission-form">
+              <div class="field-grid">
                 <label>
-                  Seed facts, notes, or pasted sources
-                  <textarea id="missionSources" rows="5">Buyers want lower support cost, faster workflow automation, stronger governance, and measurable reliability. Common concerns include hallucination risk, data privacy, tool permissions, integration effort, and unclear ROI. Strong competitors position around copilots, workflow automation, RAG, observability, and human approval.</textarea>
+                  Topic / company
+                  <input id="missionTopic" type="text" value="AI agent platforms for mid-market enterprises" />
                 </label>
-              </form>
+                <label>
+                  Audience
+                  <input id="missionAudience" type="text" value="VP Product and CTO" />
+                </label>
+                <label>
+                  Region
+                  <input id="missionRegion" type="text" value="North America" />
+                </label>
+                <label>
+                  Time horizon
+                  <input id="missionHorizon" type="text" value="next 12 months" />
+                </label>
+              </div>
+              <label>
+                Seed facts, notes, or pasted sources
+                <textarea id="missionSources" rows="4">Buyers want lower support cost, faster workflow automation, stronger governance, and measurable reliability. Common concerns include hallucination risk, data privacy, tool permissions, integration effort, and unclear ROI. Strong competitors position around copilots, workflow automation, RAG, observability, and human approval.</textarea>
+              </label>
+            </form>
 
-              <div class="artifact-toolbar">
-                <div>
-                  <strong id="artifactTitle">Mission artifact will appear here</strong>
-                  <span id="artifactSubtitle">Brief, source data, trace, and provider status are separated for review.</span>
-                </div>
-                <button id="copyArtifact" type="button">Copy</button>
+            <div class="artifact-toolbar">
+              <div>
+                <strong id="artifactTitle">Mission artifact will appear here</strong>
+                <span id="artifactSubtitle">Brief, source data, trace, and provider status are separated for review.</span>
               </div>
-              <div class="artifact-tabs" role="tablist" aria-label="Artifact views">
-                <button class="is-active" data-artifact-tab="brief" type="button">Brief</button>
-                <button data-artifact-tab="data" type="button">Data</button>
-                <button data-artifact-tab="trace" type="button">Trace</button>
-                <button data-artifact-tab="sources" type="button">Sources</button>
-              </div>
-              <article id="artifactOutput" class="artifact-output artifact-pane is-active" data-artifact-pane="brief">
-                Configure the mission, then run the agent fleet. The brief is generated by chained local agents and updated as each agent completes.
-              </article>
-              <article id="artifactData" class="artifact-output artifact-pane" data-artifact-pane="data"></article>
-              <article id="artifactTrace" class="artifact-output artifact-pane" data-artifact-pane="trace"></article>
-              <article id="artifactSources" class="artifact-output artifact-pane" data-artifact-pane="sources"></article>
+              <button id="copyArtifact" type="button">Copy</button>
             </div>
-
-            <div class="panel runtime-panel">
-              <div class="panel-heading">
-                <span class="icon purple" aria-hidden="true">⇄</span>
-                <h2>Live Agent Runtime</h2>
-              </div>
-              <div class="runtime-status">
-                <div>
-                  <span>Current agent</span>
-                  <strong id="liveAgentName">Orchestrator</strong>
-                </div>
-                <div>
-                  <span>Current task</span>
-                  <strong id="liveAgentTask">Waiting for mission input</strong>
-                </div>
-              </div>
-              <div id="architectureFlow" class="architecture-flow"></div>
-              <div id="agentScratchpad" class="scratchpad">
-                <strong>Scratchpad</strong>
-                <p>Agent thoughts, tool outputs, and handoff payloads stream here during the run.</p>
-              </div>
+            <div class="artifact-tabs" role="tablist" aria-label="Artifact views">
+              <button class="is-active" data-artifact-tab="brief" type="button">Brief</button>
+              <button data-artifact-tab="data" type="button">Data</button>
+              <button data-artifact-tab="trace" type="button">Trace</button>
+              <button data-artifact-tab="sources" type="button">Sources</button>
             </div>
-          </section>
-
-          <div class="section-label">
-            <span>2</span>
-            <div>
-              <strong>Architecture Flow</strong>
-              <p>Watch how the bounded loop moves from goal to plan, execution, verification, and ship decision.</p>
-            </div>
+            <article id="artifactOutput" class="artifact-output artifact-pane is-active" data-artifact-pane="brief">
+              Configure the mission, then run the agent fleet. The brief is generated by chained local agents and updated as each agent completes.
+            </article>
+            <article id="artifactData" class="artifact-output artifact-pane" data-artifact-pane="data"></article>
+            <article id="artifactTrace" class="artifact-output artifact-pane" data-artifact-pane="trace"></article>
+            <article id="artifactSources" class="artifact-output artifact-pane" data-artifact-pane="sources"></article>
           </div>
-          <section class="loop-map" aria-label="Loop stages">
-            <article class="stage is-current" data-stage="goal">
-              <span>01</span>
-              <h3>Goal</h3>
-              <p>Bound mission, success criteria, and stop conditions.</p>
-            </article>
-            <article class="stage" data-stage="plan">
-              <span>02</span>
-              <h3>Plan</h3>
-              <p>Break work into specialist tasks and checkpoints.</p>
-            </article>
-            <article class="stage" data-stage="execute">
-              <span>03</span>
-              <h3>Execute</h3>
-              <p>Call tools, collect evidence, and update state.</p>
-            </article>
-            <article class="stage" data-stage="verify">
-              <span>04</span>
-              <h3>Verify</h3>
-              <p>Score correctness, cost, latency, risk, and completeness.</p>
-            </article>
-            <article class="stage" data-stage="ship">
-              <span>05</span>
-              <h3>Ship</h3>
-              <p>Handoff, resume, or stop with auditable reasoning.</p>
-            </article>
-          </section>
 
-          <div class="section-label">
-            <span>3</span>
-            <div>
-              <strong>Agent Fleet & Control Plane</strong>
-              <p>Inspect orchestrator handoffs, specialist agents, evaluation gate, memory, and context.</p>
-            </div>
-          </div>
-          <section class="fleet-grid">
-            <div class="panel orchestrator-panel">
-              <div class="panel-heading">
-                <span class="icon purple" aria-hidden="true">✦</span>
-                <h2>Orchestrator</h2>
-              </div>
-              <div class="orchestrator-core">
-                <div class="pulse-ring" aria-hidden="true"></div>
-                <div>
-                  <strong id="orchestratorState">Waiting for mission</strong>
-                  <span id="orchestratorDetail">Goal owner, planner, budget governor</span>
-                </div>
-              </div>
-              <div class="handoff-strip" id="handoffStrip"></div>
-            </div>
-
-            <div class="panel agents-panel">
-              <div class="panel-heading">
-                <span class="icon orange" aria-hidden="true">⬢</span>
-                <h2>Specialist Agents</h2>
-              </div>
-              <div id="agentList" class="agent-list"></div>
-            </div>
-
-            <div class="panel eval-panel">
-              <div class="panel-heading">
-                <span class="icon blue" aria-hidden="true">✓</span>
-                <h2>Evaluation Gate</h2>
-              </div>
-              <div class="meter">
-                <div id="meterFill"></div>
-              </div>
-              <div id="evalChecks" class="check-list"></div>
-              <div class="decision" id="decision">Awaiting evidence</div>
-            </div>
-
-            <div class="panel memory-panel">
-              <div class="panel-heading">
-                <span class="icon green" aria-hidden="true">◎</span>
-                <h2>Memory & Context</h2>
-              </div>
-              <div id="memoryList" class="memory-list"></div>
-            </div>
-          </section>
-        </section>
-
-        <aside class="observability">
-          <div class="side-heading">
-            <p class="eyebrow">Operations</p>
-            <h2>Evaluation & Observability</h2>
-          </div>
           <div class="panel metrics-panel">
             <div class="panel-heading">
               <span class="icon blue" aria-hidden="true">▥</span>
@@ -308,24 +254,57 @@
             <div class="metric"><span>Fleet P95</span><strong id="p95Latency">—</strong></div>
             <div class="metric"><span>Failure rate</span><strong id="failureRate">—</strong></div>
           </div>
-
-          <div class="panel guardrail-panel">
-            <div class="panel-heading">
-              <span class="icon red" aria-hidden="true">◇</span>
-              <h2>Guardrails</h2>
-            </div>
-            <div id="guardrails" class="guardrails"></div>
-          </div>
-
-          <div class="panel trace-panel">
-            <div class="panel-heading">
-              <span class="icon purple" aria-hidden="true">≋</span>
-              <h2>Trace</h2>
-            </div>
-            <ol id="traceLog" class="trace-log"></ol>
-          </div>
         </aside>
-      </section>
+      </div>
+
+      <!-- Secondary: eval / memory / guardrails / fake stage map kept for JS compatibility -->
+      <div class="gb-secondary">
+        <details class="gb-details" open>
+          <summary>Evaluation gate, memory, guardrails &amp; stage map</summary>
+          <div class="gb-secondary-grid">
+            <div class="panel eval-panel">
+              <div class="panel-heading">
+                <span class="icon blue" aria-hidden="true">✓</span>
+                <h2>Evaluation Gate</h2>
+              </div>
+              <div class="meter"><div id="meterFill"></div></div>
+              <div id="evalChecks" class="check-list"></div>
+              <div class="decision" id="decision">Awaiting evidence</div>
+            </div>
+
+            <div class="panel memory-panel">
+              <div class="panel-heading">
+                <span class="icon green" aria-hidden="true">◎</span>
+                <h2>Memory & Context</h2>
+              </div>
+              <div id="memoryList" class="memory-list"></div>
+            </div>
+
+            <div class="panel guardrail-panel">
+              <div class="panel-heading">
+                <span class="icon red" aria-hidden="true">◇</span>
+                <h2>Guardrails</h2>
+              </div>
+              <div id="guardrails" class="guardrails"></div>
+            </div>
+
+            <div class="panel trace-panel">
+              <div class="panel-heading">
+                <span class="icon purple" aria-hidden="true">≋</span>
+                <h2>Trace</h2>
+              </div>
+              <ol id="traceLog" class="trace-log"></ol>
+            </div>
+          </div>
+
+          <section class="loop-map" aria-label="Loop stages" hidden>
+            <article class="stage is-current" data-stage="goal"><span>01</span><h3>Goal</h3><p>Bound mission.</p></article>
+            <article class="stage" data-stage="plan"><span>02</span><h3>Plan</h3><p>Specialist tasks.</p></article>
+            <article class="stage" data-stage="execute"><span>03</span><h3>Execute</h3><p>Call tools.</p></article>
+            <article class="stage" data-stage="verify"><span>04</span><h3>Verify</h3><p>Score quality.</p></article>
+            <article class="stage" data-stage="ship"><span>05</span><h3>Ship</h3><p>Handoff or stop.</p></article>
+          </section>
+        </details>
       </div>
     </main>
 
@@ -341,8 +320,9 @@
       </article>
     </template>
 
-    <script src="architect-config.js?v=1"></script>
-    <script src="architect-panel.js?v=1"></script>
-    <script src="app.js?v=10"></script>
+    <script src="architect-config.js?v=2"></script>
+    <script src="architect-panel.js?v=2"></script>
+    <script src="glassbox.js?v=1"></script>
+    <script src="app.js?v=11"></script>
   </body>
 </html>

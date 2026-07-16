@@ -1296,3 +1296,438 @@ input[type="range"] {
   border-radius: 50%;
   background: currentColor;
 }
+
+/* ── Glass-box workbench (architecture left · agent pipeline center · product right) ── */
+:root {
+  --gb-max-w: 1440px;
+  --gb-rail-w: 248px;
+  --gb-product-w: 400px;
+  --vp-header-h: 56px;
+  --vp-bg-subtle: #f1f5f9;
+  --vp-border-strong: #cbd5e1;
+  --vp-text-secondary: #475569;
+  --vp-success: #0d8b62;
+  --vp-success-subtle: #e6f6ef;
+  --vp-warning: #d97706;
+  --vp-warning-subtle: #fffbeb;
+  --vp-radius-sm: 8px;
+  --vp-radius-lg: 12px;
+  --vp-mono: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+}
+
+.gb-shell {
+  max-width: var(--gb-max-w);
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 3rem;
+}
+
+.gb-hero {
+  margin-bottom: 1rem;
+}
+
+.gb-hero h1 {
+  margin: 0.15rem 0 0.35rem;
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+}
+
+.gb-hero .lede {
+  font-size: 0.92rem;
+  max-width: 78ch;
+  margin: 0;
+  color: var(--muted);
+}
+
+.gb-workbench {
+  display: grid;
+  grid-template-columns: var(--gb-rail-w) minmax(0, 1fr) var(--gb-product-w);
+  gap: 1rem;
+  align-items: start;
+  min-height: 520px;
+}
+
+.gb-rail,
+.gb-center,
+.gb-product {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--vp-radius-lg);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.gb-rail {
+  padding: 0.85rem 0.9rem;
+  font-size: 0.78rem;
+  max-height: calc(100vh - 100px);
+  overflow: auto;
+  position: sticky;
+  top: calc(var(--vp-header-h) + 0.5rem);
+}
+
+.gb-rail-title {
+  margin: 0.9rem 0 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.gb-rail-title:first-child {
+  margin-top: 0;
+}
+
+.gb-stack-layer {
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.gb-stack-tier {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--vp-accent);
+  letter-spacing: 0.06em;
+}
+
+.gb-stack-name {
+  font-weight: 600;
+  font-size: 0.8rem;
+  line-height: 1.25;
+}
+
+.gb-stack-role {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.gb-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.gb-metric {
+  background: var(--vp-bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--vp-radius-sm);
+  padding: 0.4rem 0.5rem;
+}
+
+.gb-metric span {
+  display: block;
+  font-size: 0.62rem;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.gb-metric strong {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.gb-metrics-failed button {
+  margin-top: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+}
+
+.gb-tradeoff {
+  margin-top: 0.5rem;
+  padding: 0.45rem 0.5rem;
+  background: var(--vp-bg-subtle);
+  border-radius: var(--vp-radius-sm);
+  border-left: 3px solid var(--vp-accent);
+}
+
+.gb-tradeoff strong {
+  display: block;
+  font-size: 0.75rem;
+  margin-bottom: 0.15rem;
+}
+
+.gb-tradeoff p {
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.gb-adr-links {
+  list-style: none;
+  padding: 0;
+  margin: 0.35rem 0 0;
+}
+
+.gb-adr-links a {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--vp-accent);
+  text-decoration: none;
+  padding: 0.2rem 0;
+}
+
+.gb-adr-links a:hover {
+  text-decoration: underline;
+}
+
+.gb-center {
+  padding: 0.85rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-height: 480px;
+  max-height: calc(100vh - 100px);
+  overflow: auto;
+  position: sticky;
+  top: calc(var(--vp-header-h) + 0.5rem);
+}
+
+.gb-center-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.gb-center-head h2 {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.gb-source-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--vp-bg-subtle);
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+.gb-source-badge.live {
+  background: var(--vp-success-subtle);
+  color: var(--vp-success);
+  border-color: rgba(13, 139, 98, 0.25);
+}
+
+.gb-source-badge.fallback {
+  background: var(--vp-warning-subtle);
+  color: var(--vp-warning);
+  border-color: rgba(217, 119, 6, 0.25);
+}
+
+.gb-mission-head {
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+}
+
+.gb-mission-head h2 {
+  font-size: 1.05rem;
+  margin: 0.15rem 0;
+}
+
+.gb-pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+
+.gb-agent-node {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.35rem 0.5rem;
+  align-items: center;
+  min-width: 140px;
+  flex: 1 1 140px;
+  padding: 0.45rem 0.55rem;
+  border: 1.5px solid var(--vp-border-strong);
+  border-radius: var(--vp-radius-sm);
+  background: var(--vp-bg-subtle);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.gb-agent-node.gb-active {
+  border-color: var(--vp-accent);
+  background: var(--vp-accent-subtle);
+}
+
+.gb-agent-node.gb-done {
+  border-color: var(--vp-success);
+  background: var(--vp-success-subtle);
+}
+
+.gb-agent-idx {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.gb-agent-node strong {
+  display: block;
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
+.gb-agent-node small {
+  display: block;
+  font-size: 0.62rem;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.gb-agent-node em {
+  font-style: normal;
+  font-family: var(--vp-mono);
+  font-size: 0.68rem;
+  color: var(--vp-text-secondary);
+}
+
+.gb-agent-arrow {
+  align-self: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.gb-flow-hidden {
+  display: none !important;
+}
+
+.gb-gate {
+  font-size: 0.75rem;
+  padding: 0.45rem 0.65rem;
+  background: var(--vp-accent-subtle);
+  border: 1px solid color-mix(in srgb, var(--vp-accent) 25%, transparent);
+  border-radius: var(--vp-radius-sm);
+  color: var(--vp-text-secondary);
+  line-height: 1.4;
+}
+
+.gb-event-log {
+  font-family: var(--vp-mono);
+  font-size: 0.68rem;
+  max-height: 110px;
+  overflow: auto;
+  background: var(--vp-bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--vp-radius-sm);
+  padding: 0.45rem 0.55rem;
+  color: var(--muted);
+}
+
+.gb-event-log .ev-live {
+  color: var(--vp-accent);
+}
+
+.gb-ops-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.gb-ops-strip strong {
+  color: var(--ink);
+}
+
+.gb-runtime-status {
+  margin-top: 0.25rem;
+}
+
+.gb-orch-compact {
+  margin: 0;
+}
+
+.gb-product {
+  padding: 1rem 1.1rem;
+  position: sticky;
+  top: calc(var(--vp-header-h) + 0.5rem);
+  max-height: calc(100vh - 100px);
+  overflow: auto;
+}
+
+.gb-guided {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0 0 0.85rem;
+  line-height: 1.5;
+}
+
+.gb-run-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.4rem;
+  margin: 0.75rem 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.gb-run-row .primary {
+  width: 100%;
+}
+
+.gb-secondary {
+  margin-top: 1rem;
+}
+
+.gb-details {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--vp-radius-lg);
+  padding: 0.85rem 1rem;
+}
+
+.gb-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.gb-secondary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+/* Override old command-center shell width when glass-box is active */
+.shell.gb-shell {
+  max-width: var(--gb-max-w);
+  display: block;
+}
+
+@media (max-width: 1100px) {
+  .gb-workbench {
+    grid-template-columns: 1fr;
+  }
+
+  .gb-rail,
+  .gb-center,
+  .gb-product {
+    position: static;
+    max-height: none;
+  }
+
+  .gb-center {
+    order: 1;
+  }
+
+  .gb-product {
+    order: 2;
+  }
+
+  .gb-rail {
+    order: 3;
+  }
+}

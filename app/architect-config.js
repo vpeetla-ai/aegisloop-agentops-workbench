@@ -1,6 +1,6 @@
 window.ARCHITECT_CONFIG = {
   tagline:
-    "AgentOps workbench: mission loops with policy bounds, fleet metrics, and persisted run traces — operate agent fleets like you operate services.",
+    "Glass-box AgentOps: mission loops with policy bounds, fleet metrics, and honest per-agent telemetry spans — operate agent fleets like you operate services.",
   metricsUrl: (window.AEGISLOOP_API || "https://aegisloop-api.onrender.com") + "/api/v1/ops/metrics",
   metricsPath: "/api/v1/ops/metrics",
   metricLabels: { runs: "Mission runs", entities: "Sample window", latency: "P95 runtime" },
