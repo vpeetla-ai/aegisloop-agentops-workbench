@@ -59,9 +59,37 @@ def _require_api_key(x_api_key: Annotated[str | None, Header()] = None) -> None:
         raise HTTPException(status_code=401, detail="Invalid or missing X-API-Key")
 
 
+def _obs_planes() -> dict[str, object]:
+    langfuse = bool(os.getenv("LANGFUSE_PUBLIC_KEY") and os.getenv("LANGFUSE_SECRET_KEY"))
+    finops_url = (os.getenv("AGENTFINOPS_API_URL") or "").strip()
+    return {
+        "langfuse": {
+            "configured": langfuse,
+            "host": os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com") if langfuse else None,
+        },
+        "finops": {
+            "configured": bool(finops_url),
+            "url_configured": bool(finops_url),
+            "mission_budget_usd": float(os.getenv("MISSION_BUDGET_USD", "2.0")),
+            "enforcement": "halt_dispatch_on_breach",
+            "plane": "agent-finops",
+        },
+        "api_key_gated": bool(os.getenv("AEGISLOOP_API_KEY")),
+    }
+
+
 @app.get("/health")
 async def health():
-    return {"status": "ok", "runtime": "uv-fastapi", "storage": await storage_status(), "cost_usd": 0}
+    planes = _obs_planes()
+    return {
+        "status": "ok",
+        "runtime": "uv-fastapi",
+        "storage": await storage_status(),
+        "cost_usd": 0,
+        "langfuse_configured": planes["langfuse"]["configured"],
+        "finops_configured": planes["finops"]["configured"],
+        "api_key_gated": planes["api_key_gated"],
+    }
 
 
 @app.get("/api/missions")
@@ -82,6 +110,7 @@ async def runs(limit: int = 20):
 async def ops_metrics(limit: int = 100, mission: str | None = None):
     raw = await aggregate_run_metrics(limit=limit, mission=mission)
     success = round(100.0 - raw.get("failure_rate_pct", 0.0), 1)
+    planes = _obs_planes()
     return {
         "service": "aegisloop-agentops-workbench",
         "collected_at": datetime.now(timezone.utc).isoformat(),
@@ -90,7 +119,29 @@ async def ops_metrics(limit: int = 100, mission: str | None = None):
         "p95_latency_ms": int(raw.get("p95_ms", 0)) or None,
         "active_entities": raw.get("sample_size", 0),
         "slo": {"target_uptime_pct": 99.5, "success_target_pct": 95.0},
-        "extra": raw,
+        "extra": {**raw, **planes},
+    }
+
+
+@app.get("/api/observability/status")
+async def observability_status():
+    planes = _obs_planes()
+    return {
+        "source_of_truth": "AegisLoop mission run store (Postgres/SQLite) + in-response traces",
+        "exporters": [
+            {
+                "name": "Langfuse",
+                "state": "configured" if planes["langfuse"]["configured"] else "unset",
+                "detail": "Optional LANGFUSE_* mission span export",
+            },
+            {
+                "name": "AgentFinOps",
+                "state": "configured" if planes["finops"]["configured"] else "local_fallback",
+                "detail": "Real token metering; breach halts further agent dispatch",
+            },
+        ],
+        "planes": planes,
+        "recommendation": "Use FinOps for cost truth; Langfuse for durable panel receipts; eval gates stay in-repo.",
     }
 
 

@@ -39,7 +39,8 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for how this repo connects to AegisAI
 | FinOps cost estimates | **Implemented — real, not estimated** | Real token counts from Ollama/Netlify gateway responses, real cost from [agent-finops](https://github.com/vpeetla-ai/agent-finops), with a `MISSION_BUDGET_USD` guard that halts further agent dispatch on breach |
 | Mission telemetry spans | **Implemented** | Attached to `artifacts.telemetry_spans` |
 | Glass-box workbench UX | **Implemented** | 3-column: architecture + live SLOs · honest `agent.execute` span replay · mission product |
-| Optional Langfuse export | **Implemented** | Set `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` |
+| Optional Langfuse export | **Implemented** | Set `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY`; posture on `GET /api/observability/status` + `/api/v1/ops/metrics` |
+| Ops metrics compose planes | **Implemented** | FinOps + Langfuse + API-key gate honesty on public metrics |
 | Run lineage metadata | **Implemented** | `artifacts.lineage` with `run_id` |
 | Live market/content data | **Implemented** | Research + content missions in FastAPI runtime |
 | Netlify serverless fleet | **Partial** | Simplified vs full Python fleet — see below |
