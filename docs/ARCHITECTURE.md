@@ -16,7 +16,8 @@ flowchart LR
   API --> Eval["Evaluation gates"]
   API --> Fin["FinOps estimate"]
   API --> Tel["Telemetry spans"]
-  Tel -.-> LF["Langfuse optional"]
+  Tel -.-> LF["Langfuse optional — not the ledger"]
+  API --> ST["GET /api/observability/status"]
   GW["AegisAI gateway"] -.->|"human loop_mode"| API
   VAP["VAP orchestrators"] -.->|"delegation"| API
   RAG["Enterprise RAG"] -.->|"golden evals"| Eval
@@ -63,10 +64,13 @@ POST /api/missions/stream
 
 ## Observability
 
+Mission artifacts are the receipt I’d open first. Langfuse is optional export — not where mission pass/fail lives.
+
 | Signal | Where |
 |--------|-------|
 | Mission spans | `artifacts.telemetry_spans` |
 | Run lineage | `artifacts.lineage.run_id` |
+| Compose honesty | `GET /api/observability/status` |
 | Langfuse | `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` |
 | Eval reasons | Attached to mission result payload |
 
