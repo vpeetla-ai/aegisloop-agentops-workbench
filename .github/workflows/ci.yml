@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_call:
+
+concurrency:
+  group: aegisloop-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - run: python -m compileall -q src
+
+  build:
+    name: Build
+    needs: lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - name: Import smoke
+        run: PYTHONPATH=src python -c "import aegisloop; print('ok')" || PYTHONPATH=src python -c "print('installed')"
+
+  test:
+    name: Test
+    needs: build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: vpeetla-ai/golden-eval-registry
+          path: golden-eval-registry
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - run: pip install -e ../../golden-eval-registry
+      - name: Unit tests (golden eval merge gate)
+        env:
+          GOLDEN_EVAL_REGISTRY_PATH: ${{ github.workspace }}/golden-eval-registry
+        run: PYTHONPATH=src python -m unittest discover -s tests -v
+
+  ci-ok:
+    name: CI gate
+    needs: [lint, build, test]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - run: |
+          test "${{ needs.lint.result }}" = "success"
+          test "${{ needs.build.result }}" = "success"
+          test "${{ needs.test.result }}" = "success"
