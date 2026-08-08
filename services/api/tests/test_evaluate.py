@@ -23,18 +23,46 @@ class EvaluateTests(unittest.TestCase):
                 ),
             ),
             artifacts={"final_markdown": "# Brief\nDone.", "runtime_ms": 1200},
-            trace=[AgentEvent(agent=f"A{i}", status="done", task="t", detail="x" * 130) for i in range(9)],
+            trace=[
+                AgentEvent(
+                    agent=f"A{i}",
+                    status="done",
+                    task="t",
+                    detail="x" * 130,
+                    artifact_keys=["notes"] if i == 0 else (["final_markdown"] if i == 8 else ["notes"]),
+                )
+                for i in range(9)
+            ],
         )
 
     def test_passes_when_final_artifact_exists(self) -> None:
         evaluation = evaluate(self._context())
         self.assertEqual(evaluation.checks["Stop condition"], "pass")
-        self.assertGreaterEqual(evaluation.quality_score, 90)
+        self.assertEqual(evaluation.checks["Coordination"], "pass")
+        self.assertGreaterEqual(evaluation.quality_score, 85)
+        self.assertIn("Ship", evaluation.decision)
 
     def test_human_loop_marks_policy_review(self) -> None:
         evaluation = evaluate(self._context(loop_mode="human"))
         self.assertEqual(evaluation.checks["Policy compliance"], "review")
         self.assertIn("Human approval", evaluation.decision)
+
+    def test_unresolved_contradiction_blocks_ship(self) -> None:
+        context = self._context()
+        context.artifacts["contradictions"] = [
+            {"agents": ["A0", "A1"], "topic": "eligibility", "resolved": False}
+        ]
+        evaluation = evaluate(context)
+        self.assertEqual(evaluation.checks["Coordination"], "fail")
+        self.assertIn("Block", evaluation.decision)
+        self.assertLessEqual(evaluation.quality_score, 40)
+
+    def test_escalation_bypass_blocks_ship(self) -> None:
+        context = self._context()
+        context.artifacts["escalations"] = [{"required": True, "raised": False, "signal": "low_confidence"}]
+        evaluation = evaluate(context)
+        self.assertIn("escalation", evaluation.decision.lower())
+        self.assertLessEqual(evaluation.quality_score, 40)
 
     def test_provider_status_from_market_data(self) -> None:
         context = self._context(mission="research")

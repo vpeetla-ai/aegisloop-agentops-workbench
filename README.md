@@ -33,7 +33,7 @@ See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for how this repo connects to AegisAI
 | --- | --- | --- |
 | 5 mission fleets (research, content, incident, migration, security) | **Implemented** | Python agents in `services/api/src/agent_loop/agents/` |
 | Streaming NDJSON mission API | **Implemented** | `POST /api/missions/stream` |
-| Eval gates with reasons | **Implemented** | `runtime.evaluate()` |
+| Eval gates with reasons | **Implemented** | Collaboration scorecard vector (CSS/TUE) + hard gates in `runtime.evaluate()` — not trace-length theater |
 | Golden eval registry as a real CI gate | **Implemented** | `tests/test_golden_eval_gate.py` runs the shared `aegisloop_mission_gates_v1` suite from [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) against the real `runtime.evaluate()` function — CI checks out that repo and fails the build on regression, not just fixture validation |
 | Render FastAPI runtime | **Implemented** | [aegisloop-api.onrender.com](https://aegisloop-api.onrender.com/health) — cold start on free tier |
 | FinOps cost estimates | **Implemented — real, not estimated** | Real token counts from Ollama/Netlify gateway responses, real cost from [agent-finops](https://github.com/vpeetla-ai/agent-finops), with a `MISSION_BUDGET_USD` guard that halts further agent dispatch on breach |
@@ -133,7 +133,7 @@ Use the mission UI to run:
 - Bounded goal, plan, execute, verify, and ship stages
 - Single orchestrator with specialist agent handoffs and real artifact passing
 - Closed-loop, open-loop, and human-gated operating modes
-- Evaluation gates for quality, evidence, policy, cost, latency, and stop conditions
+- Evaluation gates for outcome, coordination (CSS), tool use (TUE), policy, cost/latency, and stop conditions — with hard fails for unresolved contradiction / escalation bypass
 - Memory/context, guardrails, telemetry, and replayable traces
 - Today's stock market analysis, Principal AI Architect content radar, incident triage, migration planning, and security review mission flows
 - Artifact tabs for final brief, structured data, replayable trace, and provider/source status
