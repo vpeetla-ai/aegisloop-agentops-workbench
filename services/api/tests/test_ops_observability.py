@@ -31,18 +31,19 @@ def test_observability_status_lists_exporters(monkeypatch):
     assert resp.status_code == 200
     body = resp.json()
     names = {e["name"] for e in body["exporters"]}
-    assert names == {"Langfuse", "AgentFinOps"}
+    assert names == {"Langfuse", "AgentFinOps", "CollaborationScorecard"}
+    assert "collaboration_scorecard" in body
     assert body["planes"]["langfuse"]["configured"] is True
     assert body["planes"]["finops"]["configured"] is False
 
 
-def test_health_includes_finops_langfuse(monkeypatch):
-    monkeypatch.setenv("AGENTFINOPS_API_URL", "https://finops.example")
+def test_ops_scorecard_endpoint(monkeypatch):
     monkeypatch.delenv("LANGFUSE_PUBLIC_KEY", raising=False)
     monkeypatch.delenv("LANGFUSE_SECRET_KEY", raising=False)
     client = TestClient(app)
-    resp = client.get("/health")
+    resp = client.get("/api/v1/ops/scorecard")
     assert resp.status_code == 200
     body = resp.json()
-    assert body["finops_configured"] is True
-    assert body["langfuse_configured"] is False
+    assert body["service"] == "aegisloop-agentops-workbench"
+    assert "honesty" in body
+    assert "sample" in body
