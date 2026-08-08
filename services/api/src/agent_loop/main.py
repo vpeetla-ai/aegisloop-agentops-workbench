@@ -123,9 +123,55 @@ async def ops_metrics(limit: int = 100, mission: str | None = None):
     }
 
 
+@app.get("/api/v1/ops/scorecard")
+async def ops_scorecard(limit: int = 20, mission: str | None = None):
+    """Panel-facing collaboration vector summary (Stage-4 honesty surface)."""
+    runs = await list_runs(limit)
+    if mission:
+        runs = [run for run in runs if run.get("mission") == mission]
+    latest = None
+    hard_gate_fails = 0
+    scored = 0
+    for run in runs:
+        artifacts = run.get("artifacts") or {}
+        scorecard = artifacts.get("scorecard")
+        if not isinstance(scorecard, dict):
+            continue
+        scored += 1
+        if scorecard.get("hard_gate_failures"):
+            hard_gate_fails += 1
+        if latest is None:
+            latest = {
+                "run_id": run.get("run_id"),
+                "mission": run.get("mission"),
+                "decision": (run.get("evaluation") or {}).get("decision"),
+                "quality_score": (run.get("evaluation") or {}).get("quality_score"),
+                "release_ok": scorecard.get("release_ok"),
+                "hard_gate_failures": scorecard.get("hard_gate_failures") or [],
+                "vector": scorecard.get("vector") or {},
+            }
+    metrics = await aggregate_run_metrics(limit=max(limit, 50), mission=mission)
+    return {
+        "service": "aegisloop-agentops-workbench",
+        "collected_at": datetime.now(timezone.utc).isoformat(),
+        "latest": latest,
+        "sample": {
+            "runs": len(runs),
+            "scored": scored,
+            "hard_gate_failure_rate": round(hard_gate_fails / scored, 3) if scored else None,
+        },
+        "collaboration": metrics.get("collaboration"),
+        "honesty": (
+            "release_ok false or hard_gate_failures non-empty means ship is blocked — "
+            "task success alone is not enough."
+        ),
+    }
+
+
 @app.get("/api/observability/status")
 async def observability_status():
     planes = _obs_planes()
+    scorecard = await ops_scorecard(limit=10)
     return {
         "source_of_truth": "AegisLoop mission run store (Postgres/SQLite) + in-response traces",
         "exporters": [
@@ -139,9 +185,21 @@ async def observability_status():
                 "state": "configured" if planes["finops"]["configured"] else "local_fallback",
                 "detail": "Real token metering; breach halts further agent dispatch",
             },
+            {
+                "name": "CollaborationScorecard",
+                "state": "active",
+                "detail": "CSS/TUE vector + hard gates on every mission evaluate()",
+            },
         ],
         "planes": planes,
-        "recommendation": "Use FinOps for cost truth; Langfuse for durable panel receipts; eval gates stay in-repo.",
+        "collaboration_scorecard": {
+            "latest": scorecard.get("latest"),
+            "sample": scorecard.get("sample"),
+        },
+        "recommendation": (
+            "Use FinOps for cost truth; Langfuse for durable panel receipts; "
+            "collaboration hard gates block ship even when the final answer looks correct."
+        ),
     }
 
 

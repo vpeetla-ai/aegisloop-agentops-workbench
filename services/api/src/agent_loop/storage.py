@@ -79,40 +79,55 @@ async def persist_run(record: dict[str, Any]) -> None:
     pool = await _get_pool()
     if pool is None:
         _persist_run_file(record)
-        return
-    evaluation = record.get("evaluation") or {}
-    async with pool.acquire() as connection:
-        await connection.execute(
-            """
-            insert into agent_runs (
-                run_id, mission, runtime, quality_score, decision, provider_status,
-                artifact_markdown, artifacts, trace, evaluation, cost_usd
+    else:
+        evaluation = record.get("evaluation") or {}
+        async with pool.acquire() as connection:
+            await connection.execute(
+                """
+                insert into agent_runs (
+                    run_id, mission, runtime, quality_score, decision, provider_status,
+                    artifact_markdown, artifacts, trace, evaluation, cost_usd
+                )
+                values ($1, $2, $3, $4, $5, $6::jsonb, $7, $8::jsonb, $9::jsonb, $10::jsonb, $11)
+                on conflict (run_id) do update set
+                    mission = excluded.mission,
+                    runtime = excluded.runtime,
+                    quality_score = excluded.quality_score,
+                    decision = excluded.decision,
+                    provider_status = excluded.provider_status,
+                    artifact_markdown = excluded.artifact_markdown,
+                    artifacts = excluded.artifacts,
+                    trace = excluded.trace,
+                    evaluation = excluded.evaluation,
+                    cost_usd = excluded.cost_usd;
+                """,
+                record["run_id"],
+                record["mission"],
+                record["runtime"],
+                int(evaluation.get("quality_score") or 0),
+                str(evaluation.get("decision") or ""),
+                json.dumps(record.get("provider_status") or {}),
+                record.get("artifact_markdown") or "",
+                json.dumps(record.get("artifacts") or {}, default=_json_default),
+                json.dumps(record.get("trace") or [], default=_json_default),
+                json.dumps(evaluation, default=_json_default),
+                float(record.get("cost_usd") or 0),
             )
-            values ($1, $2, $3, $4, $5, $6::jsonb, $7, $8::jsonb, $9::jsonb, $10::jsonb, $11)
-            on conflict (run_id) do update set
-                mission = excluded.mission,
-                runtime = excluded.runtime,
-                quality_score = excluded.quality_score,
-                decision = excluded.decision,
-                provider_status = excluded.provider_status,
-                artifact_markdown = excluded.artifact_markdown,
-                artifacts = excluded.artifacts,
-                trace = excluded.trace,
-                evaluation = excluded.evaluation,
-                cost_usd = excluded.cost_usd;
-            """,
-            record["run_id"],
-            record["mission"],
-            record["runtime"],
-            int(evaluation.get("quality_score") or 0),
-            str(evaluation.get("decision") or ""),
-            json.dumps(record.get("provider_status") or {}),
-            record.get("artifact_markdown") or "",
-            json.dumps(record.get("artifacts") or {}, default=_json_default),
-            json.dumps(record.get("trace") or [], default=_json_default),
-            json.dumps(evaluation, default=_json_default),
-            float(record.get("cost_usd") or 0),
-        )
+    _maybe_capture_failure_candidate(record)
+
+
+def _maybe_capture_failure_candidate(record: dict[str, Any]) -> None:
+    """Stage-4: persist hard-gate failures for GER promote_failure.py review."""
+    artifacts = record.get("artifacts") or {}
+    scorecard = artifacts.get("scorecard") if isinstance(artifacts, dict) else None
+    if not isinstance(scorecard, dict):
+        return
+    if scorecard.get("release_ok", True) and not scorecard.get("hard_gate_failures"):
+        return
+    fail_dir = RUN_DIR / "failures"
+    fail_dir.mkdir(parents=True, exist_ok=True)
+    path = fail_dir / f"{record.get('run_id', 'unknown')}.json"
+    path.write_text(json.dumps(record, default=_json_default, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def _list_runs_file(limit: int = 20) -> list[dict[str, Any]]:

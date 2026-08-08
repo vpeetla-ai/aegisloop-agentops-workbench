@@ -6,6 +6,7 @@ from agent_loop.agents.base import Agent, AgentResult, bullet_list
 from agent_loop.data_sources import fetch_market_headlines, fetch_market_snapshot
 from agent_loop.llm import LLMClient
 from agent_loop.models import AgentContext
+from agent_loop.tool_calls import record_tool_call
 
 
 class MarketDataAgent(Agent):
@@ -14,6 +15,17 @@ class MarketDataAgent(Agent):
 
     async def run(self, context: AgentContext) -> AgentResult:
         snapshot = await fetch_market_snapshot()
+        live = sum(1 for status in snapshot.source_status.values() if str(status).startswith("live"))
+        record_tool_call(
+            context,
+            tool="fetch_market_snapshot",
+            selected_correct=True,
+            args_valid=True,
+            executed=True,
+            outcome_correct=live > 0 or bool(snapshot.quotes),
+            necessary=True,
+            detail=f"sources={dict(snapshot.source_status)}",
+        )
         context.artifacts["market_data"] = {
             "as_of": snapshot.as_of,
             "source_status": snapshot.source_status,
@@ -31,6 +43,16 @@ class NewsCatalystAgent(Agent):
 
     async def run(self, context: AgentContext) -> AgentResult:
         headlines = await fetch_market_headlines()
+        record_tool_call(
+            context,
+            tool="fetch_market_headlines",
+            selected_correct=True,
+            args_valid=True,
+            executed=True,
+            outcome_correct=isinstance(headlines, list),
+            necessary=True,
+            detail=f"headline_count={len(headlines) if isinstance(headlines, list) else 0}",
+        )
         context.artifacts["headlines"] = headlines
         return AgentResult("Market headline catalysts collected.", ["headlines"])
 
