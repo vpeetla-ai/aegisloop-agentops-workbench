@@ -6,6 +6,13 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
+# git is required by `uv sync` to resolve pyproject.toml's git-sourced
+# dependency (agent-finops @ git+https://github.com/vpeetla-ai/agent-finops.git)
+# -- the astral-sh/uv:*-bookworm-slim base image doesn't include it, and a
+# manual Render deploy failed with "Git executable not found" as a result.
+RUN apt-get update && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY pyproject.toml uv.lock ./
 COPY src ./src
 
