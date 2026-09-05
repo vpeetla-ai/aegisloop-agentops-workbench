@@ -21,7 +21,7 @@ git clone https://github.com/vpeetla-ai/vpeetla-ai-skills.git
 
 [▶ Live mission console](https://aegisloop-agentops-workbench.vercel.app) · [🚀 Deploy guide](docs/LIVE_DEMO.md) · [Architecture hub](docs/ARCHITECTURE.md) · [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md)
 
-AegisLoop is a production-style portfolio workbench for demonstrating orchestrated AI agent fleets: bounded missions, specialist handoffs, observable traces, evaluation gates, source coverage, and deployable runtime paths.
+**Job of the system:** run a specialist agent fleet through bounded missions and prove it worked. Evaluation gates, replayable traces, source coverage, deployable runtime paths — not a slide-deck demo.
 
 See [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) for how this repo connects to AegisAI, VAP, and Enterprise RAG.
 

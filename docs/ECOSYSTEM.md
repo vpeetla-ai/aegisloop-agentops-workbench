@@ -1,6 +1,6 @@
 # Ecosystem — AegisLoop AgentOps Workbench
 
-AegisLoop is the **AgentOps demonstration layer** in the Venkat AI portfolio: bounded missions, specialist fleets, evaluation gates, traces, and FinOps estimates — without replacing governance or orchestration platforms.
+AegisLoop is the **AgentOps demonstration layer** in the Venkat AI portfolio — bounded missions, specialist fleets, evaluation gates, traces, FinOps estimates. It doesn't replace governance or orchestration; those live elsewhere.
 
 ## Where this repo sits
 
